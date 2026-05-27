@@ -1,9 +1,9 @@
 import { clearStoredAuth, getStoredAuth, setStoredAuth } from "./storage";
 
-// const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "http://192.168.1.199:5000";
+// const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "http://172.21.224.1:5000";
 // Replace the local IP with your specific Localtunnel URL
 // In your api.js
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "https://ledger-app-5azc.onrender.com";
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "https://ledger-app-5azc.onrender.com";
 
 export const getCurrentUserId = async () => {
   const { userId } = await getStoredAuth();

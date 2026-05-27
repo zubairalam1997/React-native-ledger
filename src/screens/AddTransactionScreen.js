@@ -60,7 +60,7 @@ export default function AddTransactionScreen({ navigation, route }) {
           note: desc,
           date: new Date(date).toISOString(),
           amount: numAmount,
-          confirmationMode: confirmationMode || "SIMPLE",
+          confirmationMode: confirmationMode || "PERSONAL",
         },
         billImageUri
       );
