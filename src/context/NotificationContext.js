@@ -43,12 +43,7 @@ export function NotificationProvider({ children }) {
       return;
     }
 
-    if (appStateRef.current !== "active") {
-      disconnectNotificationSocket();
-      return;
-    }
-
-    if (socketRef.current === socket) {
+    if (socketRef.current === socket && socket.connected) {
       return;
     }
 
@@ -56,6 +51,17 @@ export function NotificationProvider({ children }) {
 
     socket.off("notification:new");
     socket.off("notification:updated");
+
+    socket.on("connect", () => {
+      console.log("Notification socket connected");
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.log("Notification socket disconnected", reason);
+      if (reason === "io client disconnect") {
+        socketRef.current = null;
+      }
+    });
 
     socket.on("notification:new", (notification) => {
       addOrReplaceNotification(notification);
@@ -71,7 +77,7 @@ export function NotificationProvider({ children }) {
     });
 
     socket.on("connect_error", (error) => {
-      console.error("Notification socket connection failed", error.message);
+      console.error("Notification socket connection failed", error?.message || error);
     });
   }, [addOrReplaceNotification]);
 
@@ -102,20 +108,28 @@ export function NotificationProvider({ children }) {
 
       if (nextAppState !== "active") {
         disconnectNotificationSocket();
+        socketRef.current = null;
         return;
       }
 
       if (!wasActive) {
         refreshNotifications().catch((error) => {
-          console.error("Failed to reconnect notification socket", error);
+          console.error("Failed to refresh notifications", error);
         });
       }
     });
 
-    return () => subscription.remove();
+    return () => {
+      subscription.remove();
+    };
   }, [refreshNotifications]);
 
-  useEffect(() => () => disconnectNotificationSocket(), []);
+  useEffect(() => {
+    return () => {
+      disconnectNotificationSocket();
+      socketRef.current = null;
+    };
+  }, []);
 
   const pushNotification = useCallback(async (notification) => {
     if (!(await getCurrentUserId())) {

@@ -33,5 +33,8 @@ export const connectNotificationSocket = async () => {
 };
 
 export const disconnectNotificationSocket = () => {
-  socket?.disconnect();
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
 };
